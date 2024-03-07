@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<CHECK xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="check01.xsd">
+    <CHECKHEAD>
+        <DOCTYPE>{doctype}</DOCTYPE>
+        <UID></UID>
+        <TIN></TIN>
+        <IPN></IPN>
+        <ORGNM></ORGNM>
+        <POINTNM></POINTNM>
+        <POINTADDR></POINTADDR>
+        <ORDERDATE></ORDERDATE>
+        <ORDERTIME></ORDERTIME>
+        <ORDERNUM></ORDERNUM>
+        <CASHDESKNUM></CASHDESKNUM>
+        <CASHREGISTERNUM></CASHREGISTERNUM>
+        <CASHIER></CASHIER>
+        <LOGOURL>https://tax.gov.ua/images/new_logo.png</LOGOURL>
+        <VER>1</VER>
+    </CHECKHEAD>
+</CHECK>

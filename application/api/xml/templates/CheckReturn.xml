@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<CHECK xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="check01.xsd">
+    <CHECKHEAD>
+        <DOCTYPE>{doctype}</DOCTYPE>
+        <DOCSUBTYPE>{docsubtype}</DOCSUBTYPE>
+        <UID></UID>
+        <TIN></TIN>
+        <IPN></IPN>
+        <ORGNM></ORGNM>
+        <POINTNM></POINTNM>
+        <POINTADDR></POINTADDR>
+        <ORDERDATE></ORDERDATE>
+        <ORDERTIME></ORDERTIME>
+        <ORDERNUM></ORDERNUM>
+        <CASHDESKNUM></CASHDESKNUM>
+        <CASHREGISTERNUM></CASHREGISTERNUM>
+        <ORDERRETNUM></ORDERRETNUM>
+        <CASHIER></CASHIER>
+        <LOGOURL>https://tax.gov.ua/images/new_logo.png</LOGOURL>
+        <VER>1</VER>
+        <REVOKED></REVOKED>
+    </CHECKHEAD>
+    <CHECKTOTAL>
+        <SUM></SUM>
+    </CHECKTOTAL>
+    <CHECKPAY>
+        <ROW ROWNUM="1">
+            <PAYFORMCD></PAYFORMCD>
+            <PAYFORMNM></PAYFORMNM>
+            <SUM></SUM>
+            <PROVIDED></PROVIDED>
+            <REMAINS></REMAINS>
+        </ROW>
+    </CHECKPAY>
+    <CHECKTAX>
+<!--        <ROW ROWNUM="1">-->
+<!--            <TYPE></TYPE>-->
+<!--            <NAME></NAME>-->
+<!--            <LETTER></LETTER>-->
+<!--            <PRC></PRC>-->
+<!--            <TURNOVER></TURNOVER>-->
+<!--            <SUM></SUM>-->
+<!--        </ROW>-->
+    </CHECKTAX>
+    <CHECKBODY>
+<!--        <ROW ROWNUM="1">-->
+<!--            <CODE></CODE>-->
+<!--            <BARCODE></BARCODE>-->
+<!--            <UKTZED></UKTZED>-->
+<!--            <DKPP></DKPP>-->
+<!--            <NAME></NAME>-->
+<!--            <UNITCD></UNITCD>-->
+<!--            <UNITNM></UNITNM>-->
+<!--            <AMOUNT></AMOUNT>-->
+<!--            <PRICE></PRICE>-->
+<!--            <LETTERS></LETTERS>-->
+<!--            <COST></COST>-->
+<!--            <COMMENT></COMMENT>-->
+<!--        </ROW>-->
+    </CHECKBODY>
+</CHECK>

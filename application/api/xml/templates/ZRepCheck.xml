@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<ZREP xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="zrep01.xsd">
+    <ZREPHEAD>
+        <UID></UID>
+        <TIN></TIN>
+        <IPN></IPN>
+        <ORGNM></ORGNM>
+        <POINTNM></POINTNM>
+        <POINTADDR></POINTADDR>
+        <ORDERDATE></ORDERDATE>
+        <ORDERTIME></ORDERTIME>
+        <ORDERNUM></ORDERNUM>
+        <CASHDESKNUM></CASHDESKNUM>
+        <CASHREGISTERNUM></CASHREGISTERNUM>
+        <CASHIER></CASHIER>
+        <VER>1</VER>
+    </ZREPHEAD>
+    <ZREPREALIZ>
+        <SUM></SUM>
+        <ORDERSCNT></ORDERSCNT>
+        <PAYFORMS>
+<!--            <ROW ROWNUM="1">-->
+<!--                <PAYFORMCD></PAYFORMCD>-->
+<!--                <PAYFORMNM></PAYFORMNM>-->
+<!--                <SUM></SUM>-->
+<!--            </ROW>-->
+        </PAYFORMS>
+        <TAXES>
+<!--            <ROW ROWNUM="1">-->
+<!--                <TYPE></TYPE>-->
+<!--                <NAME></NAME>-->
+<!--                <LETTER></LETTER>-->
+<!--                <PRC></PRC>-->
+<!--                <TURNOVER></TURNOVER>-->
+<!--                <SUM></SUM>-->
+<!--            </ROW>-->
+        </TAXES>
+    </ZREPREALIZ>
+    <ZREPRETURN>
+        <SUM></SUM>
+        <ORDERSCNT></ORDERSCNT>
+        <PAYFORMS>
+<!--            <ROW ROWNUM="1">-->
+<!--                <PAYFORMCD></PAYFORMCD>-->
+<!--                <PAYFORMNM></PAYFORMNM>-->
+<!--                <SUM></SUM>-->
+<!--            </ROW>-->
+        </PAYFORMS>
+        <TAXES>
+<!--            <ROW ROWNUM="1">-->
+<!--                <TYPE></TYPE>-->
+<!--                <NAME></NAME>-->
+<!--                <LETTER></LETTER>-->
+<!--                <PRC></PRC>-->
+<!--                <TURNOVER></TURNOVER>-->
+<!--                <SUM></SUM>-->
+<!--            </ROW>-->
+        </TAXES>
+    </ZREPRETURN>
+    <ZREPBODY>
+        <SERVICEINPUT></SERVICEINPUT>
+        <SERVICEOUTPUT></SERVICEOUTPUT>
+    </ZREPBODY>
+</ZREP>
