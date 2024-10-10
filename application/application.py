@@ -8,12 +8,12 @@ from datetime import datetime
 # from dateutil import parser
 from mergedeep import merge
 
-from application.offline import Offline
+from application.esign import eSign
 from application.repository import TemplateRepository
 from skeleton import Skeleton
 
 
-class Application(Skeleton, Offline):
+class Application(Skeleton, eSign):
     """Application Specific Logic"""
 
     total_requests: int = 0
