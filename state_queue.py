@@ -37,11 +37,11 @@ class StateQueue(Skeleton):
             self.queue[signer] = {}
 
         if not self.queue.get(signer).get('state'):
-            state = await self.get_registrar_state(signer=signer, fiscal_number=num_fiscal)
+            state = await self.get_registrar_state(signer=signer, fiscal_number=num_fiscal, args=data.get('args'))
             self.queue[signer].update({'state': state})
 
         if 'totals' in section:
-            totals = await self.get_last_shift_totals(signer=signer, fiscal_number=num_fiscal)
+            totals = await self.get_last_shift_totals(signer=signer, fiscal_number=num_fiscal, args=data.get('args'))
             self.queue[signer].update({'totals': totals})
 
         if msg.reply:
@@ -102,8 +102,8 @@ class StateQueue(Skeleton):
             return False
         return True
 
-    async def do_request(self, signer: str, request: str, raw: dict) -> dict:
-        body = {"data": {"request": request, "action": "command", 'signer': signer, 'skip_dispatch': True},
+    async def do_request(self, signer: str, request: str, raw: dict, args = None) -> dict:
+        body = {"data": {"request": request, "action": "command", 'signer': signer, 'skip_dispatch': True, 'args': args},
                 "content": self.gzip_content(raw)
                 }
 
@@ -118,31 +118,31 @@ class StateQueue(Skeleton):
 
         ungzipped = gzip.decompress(response.data)
         body = json.loads(ungzipped)
-        # content = body.get('content')
         data = body.get('data')
 
-        try:
-            response = await self.nc.request(
-                self.config.get_channel_signer(identifier=signer, debug=self.debug),
-                self.gzip_request(body),
-                timeout=20
-            )
-        except ErrTimeout:
-            raise SignClientDisconnected('Немає з\'єднання з клієнтом для підпису.')
+        if (args is None or args.get('edrpou') is None):
+            try:
+                response = await self.nc.request(
+                    self.config.get_channel_signer(identifier=signer, debug=self.debug),
+                    self.gzip_request(body),
+                    timeout=20
+                )
+            except ErrTimeout:
+                raise SignClientDisconnected('Немає з\'єднання з клієнтом для підпису.')
 
-        ungzipped = gzip.decompress(response.data)
-        content = json.loads(ungzipped).get('content')
+            ungzipped = gzip.decompress(response.data)
+            content = json.loads(ungzipped).get('content')
 
-        body = {"data": data, "content": content}
+            body = {"data": data, "content": content}
 
-        try:
-            response = await self.nc.request(
-                self.config.get_channel_queue_resolver(identifier=signer, debug=self.debug),
-                self.gzip_request(body),
-                timeout=20
-            )
-        except ErrTimeout:
-            raise PrroBackendDisconnected('Немає з\'єднання з сервером.')
+            try:
+                response = await self.nc.request(
+                    self.config.get_channel_queue_resolver(identifier=signer, debug=self.debug),
+                    self.gzip_request(body),
+                    timeout=20
+                )
+            except ErrTimeout:
+                raise PrroBackendDisconnected('Немає з\'єднання з сервером.')
 
         result = self.ungzip_response(response.data)
         if not self.is_json(result):
@@ -150,17 +150,17 @@ class StateQueue(Skeleton):
 
         return json.loads(result)
 
-    async def get_server_state(self, signer: str) -> dict:
+    async def get_server_state(self, signer: str, args = None) -> dict:
         content = {}
-        return await self.do_request(signer=signer, request='ServerState', raw=content)
+        return await self.do_request(signer=signer, request='ServerState', raw=content, args=args)
 
-    async def get_registrar_state(self, signer: str, fiscal_number: str) -> dict:
+    async def get_registrar_state(self, signer: str, fiscal_number: str, args = None) -> dict:
         content = {'NumFiscal': fiscal_number}
-        return await self.do_request(signer=signer, request='TransactionsRegistrarState', raw=content)
+        return await self.do_request(signer=signer, request='TransactionsRegistrarState', raw=content, args=args)
 
-    async def get_last_shift_totals(self, signer: str, fiscal_number: str) -> dict:
+    async def get_last_shift_totals(self, signer: str, fiscal_number: str, args = None) -> dict:
         content = {'NumFiscal': fiscal_number}
-        return await self.do_request(signer=signer, request='LastShiftTotals', raw=content)
+        return await self.do_request(signer=signer, request='LastShiftTotals', raw=content, args=args)
 
     def create_tasks(self) -> list:
         tasks = list()

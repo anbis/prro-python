@@ -1,3 +1,4 @@
+import gzip
 import json
 import re
 from application.connector import Connector
@@ -9,44 +10,35 @@ class eSign(Connector):
         super().__init__()
         
         self.url = 'https://sign.e-life.com.ua/api/EDG/Sign'
-        self.certs = {
-            'БІСОВЕЦЬКА': {
-                "edrpou": "NV411165",
-                "password": "Aa1234567"
-            },
-            'БІСОВЕЦЬКИЙ': {
-                "edrpou": "NV411165",
-                "password": "Aa1234567"
-            }
-        }
         
-    def send_to_dfs(self, endpoint: str, body: bytes):
-        try:
-            decoded = body.decode("utf8", "ignore")
-            
-            # if 'БІСОВЕЦЬКА' in decoded:
-            #     edrpou = self.certs['БІСОВЕЦЬКА']['edrpou']
-            #     password = self.certs['БІСОВЕЦЬКА']['password']
-            # el
-            if 'БІСОВЕЦЬКИЙ' in decoded:
-                edrpou = self.certs['БІСОВЕЦЬКИЙ']['edrpou']
-                password = self.certs['БІСОВЕЦЬКИЙ']['password']
-            else:
-                return super().send_to_dfs(endpoint, body)
-                
-            decoded = self.parse_trash_content(decoded)
-            body64 = base64.b64encode(decoded.encode())
-            body = self.singContent(body64, edrpou, password)
-        except Exception as e:
-            pass
-            
-        return super().send_to_dfs(endpoint, body)
+    async def command_handler(self, request: str, content: bytes, data: dict) -> dict:
+        processed = await super().command_handler(request, content, data)
+        
+        if (data.get('args') is None or (data.get('args') and data.get('args').get('edrpou') is None)):
+            return processed
+
+        document = gzip.decompress(base64.b64decode(processed.get('content')));
+        template = processed.get('template')
+        
+        edrpou = data.get('args').get('edrpou')
+        password = data.get('args').get('password')
+        
+        signed = self.singContent(document, edrpou, password)
+        
+        response = super().send_to_dfs(template.get_endpoint(), signed)
+        response_content = template.parse_response(data, response.content)
+
+        result = {
+            'data': {'status_code': response.status_code},
+            'content': base64.b64encode(gzip.compress(response_content)).decode(),
+        }
+        return result
     
     def singContent(self, content: bytes, edrpou: str, password: str):
         response = requests.post(
             url=self.url,
             json={
-                "content": content.decode(),
+                "content": base64.b64encode(content).decode(),
                 "edrpou": edrpou,
                 "password": password,
                 "signatureParameters": {

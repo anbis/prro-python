@@ -58,7 +58,7 @@ class Connector(ConnectorInterface):
         data.update({'action': 'signed'})
         merge(data, body)
 
-        return {'data': data, 'content': template_content}
+        return {'data': data, 'content': template_content, 'template': template}
 
     async def signed_handler(self, request: str, content: bytes, data: dict) -> dict:
         template = self.get_template(request)
@@ -103,6 +103,9 @@ class Connector(ConnectorInterface):
         await self.send_result(msg.reply, result)
 
     async def send_result(self, reply: str, result: dict) -> None:
+        if (result.get('template')):
+            del result['template']
+            
         response_str = self.json_encode(result)
         gzipped = gzip.compress(response_str)
 

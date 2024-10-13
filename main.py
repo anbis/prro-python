@@ -37,6 +37,7 @@ def main(argv):
             if opt == '-d':
                 debug = True
                 Balancer(debug=debug).create_application()
+                # Balancer(debug=debug).run()
                 return 0
 
             if opt == '-h':

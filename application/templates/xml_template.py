@@ -53,7 +53,7 @@ class XMLTemplate(TemplateResponseEncrypted):
         else:
             return datetime.now(pytz.timezone('Europe/Kiev'))
 
-    def get_default_value(self, field):
+    def get_default_value(self, field: str, value: str = None):
         if field.upper() == 'UID':
             return str(uuid.uuid4())
 
@@ -66,7 +66,7 @@ class XMLTemplate(TemplateResponseEncrypted):
         if field.upper() == 'TYPE':
             return 0
 
-        return None
+        return value
 
     def process_value(self, field, value):
         if field.upper() in self.number_fields:
@@ -145,10 +145,9 @@ class XMLTemplate(TemplateResponseEncrypted):
 
                     self.process_dict(obj.get(self.mapper.get(field)).get('ROW')[index], item)
             else:
-                if value is None:
-                    value = self.get_default_value(field)
-
+                value = self.get_default_value(field, value)
                 value = self.process_value(field, value)
+                
                 obj[field.upper()] = value
 
     async def predispatch(self, request: str, body: dict, data: dict) -> dict:

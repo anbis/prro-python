@@ -121,6 +121,7 @@ class Application(Skeleton, eSign):
             'get_registrar_state',
             json.dumps({
                 'signer': signer,
+                'args': data.get('args')
             }).encode()
         )
         state = json.loads(response.data.decode()).get('state')
@@ -134,6 +135,7 @@ class Application(Skeleton, eSign):
                     'signer': signer,
                     'num_fiscal': num_fiscal,
                     'section': ['state', 'totals'],
+                    'args': data.get('args')
                 }).encode(),
                 timeout=10
             )
@@ -171,6 +173,7 @@ class Application(Skeleton, eSign):
                         'signer': signer,
                         'num_fiscal': num_fiscal,
                         'section': ['state'],
+                        'args': data.get('args')
                     }).encode(),
                     timeout=10
                 )
@@ -198,6 +201,7 @@ class Application(Skeleton, eSign):
             json.dumps({
                 'signer': signer,
                 'num_fiscal': num_fiscal,
+                'args': data.get('args')
             }).encode()
         )
 
