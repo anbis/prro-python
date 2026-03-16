@@ -1,5 +1,8 @@
 import json
+import struct
 import uuid
+import zlib
+
 import pytz
 import xmltodict
 
@@ -100,6 +103,61 @@ class XMLTemplate(TemplateResponseEncrypted):
     def post_process(self, content: dict) -> str:
         return xmltodict.unparse(content, encoding='windows-1251')
 
+    def _compute_offline_ordertaxnum(self, head: dict, data: dict) -> str:
+        """Compute the offline fiscal number in the format
+        ``<OfflineSessionId>.<OfflineNextLocalNum>.<ControlNumber>``.
+
+        The control number is the 4 least-significant decimal digits of the
+        CRC32 checksum (per the DamienG CRC32 / IEEE 802.3 algorithm) of a
+        comma-separated string built from:
+
+          OfflineSeed, ORDERDATE, ORDERTIME, ORDERNUM (global local number),
+          CASHREGISTERNUM, CASHDESKNUM [, total sum] [, PREVDOCHASH]
+
+        Leading zeros in the 4-digit window are stripped; 0 is replaced by 1.
+        """
+        offline_session_id = data.get('OfflineSessionId')
+        offline_seed = data.get('OfflineSeed')
+        offline_next_local_num = data.get('OfflineNextLocalNum', 1)
+
+        crc_parts = [
+            str(offline_seed),
+            str(head.get('ORDERDATE', '')),
+            str(head.get('ORDERTIME', '')),
+            str(head.get('ORDERNUM', '')),
+            str(head.get('CASHREGISTERNUM', '')),
+            str(head.get('CASHDESKNUM', '')),
+        ]
+
+        # Total sum for Check-class documents (format "0.00") if present.
+        total = data.get('total') or {}
+        total_sum = total.get('sum')
+        if total_sum is not None:
+            crc_parts.append('{:.2f}'.format(float(total_sum)))
+
+        # Previous-document hash for all financial docs except the first two
+        # (OfflineBegin is excluded and the doc immediately after it is also
+        # excluded because OfflineBegin may be amended).
+        prev_doc_hash = data.get('PREVDOCHASH')
+        if prev_doc_hash:
+            crc_parts.append(prev_doc_hash)
+
+        crc_input = ','.join(crc_parts)
+        # Compute CRC32 and read the 4-byte result as a little-endian uint32,
+        # then interpret those bytes as a big-endian uint32 – this matches
+        # the byte order used in the DFS specification examples.
+        raw_crc = zlib.crc32(crc_input.encode()) & 0xFFFFFFFF
+        canonical = struct.unpack('>I', struct.pack('<I', raw_crc))[0]
+        # Take the 4 least-significant decimal digits; strip leading zeros.
+        # Per spec: if the result is 0 it must be replaced by 1.
+        control = str(canonical)[-4:].lstrip('0') or '1'
+
+        return '{session}.{local}.{control}'.format(
+            session=offline_session_id,
+            local=offline_next_local_num,
+            control=control,
+        )
+
     def fill_data(self, content: dict, data: dict = None) -> dict:
         content = super().fill_data(content, data)
         check = content.get(self.root_tag)
@@ -108,6 +166,22 @@ class XMLTemplate(TemplateResponseEncrypted):
             raise Exception('Invalid document type')
 
         self.process_dict(check, data)
+
+        # Offline mode: compute and embed the offline fiscal number when the
+        # caller has injected an OfflineSessionId into the document data.
+        if data and data.get('OfflineSessionId') is not None:
+            head = check.get(self.mapper.get('head'))
+            if head:
+                ordertaxnum = self._compute_offline_ordertaxnum(head, data)
+                head['ORDERTAXNUM'] = ordertaxnum
+                # Expose the computed number so signed_handler can use it
+                # when building the synthetic offline response.
+                data['offline_ordertaxnum'] = ordertaxnum
+                # Embed the previous-document hash chain link when provided.
+                prev_doc_hash = data.get('PREVDOCHASH')
+                if prev_doc_hash:
+                    head['PREVDOCHASH'] = prev_doc_hash
+
         return content
 
     def cleanup(self, check):
