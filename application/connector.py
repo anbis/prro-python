@@ -7,7 +7,7 @@ import re
 from mergedeep import merge
 
 from application.api.common import Endpoints
-from application.intefraces.connector_interface import ConnectorInterface
+from application.interfaces.connector_interface import ConnectorInterface
 from application.templates.template import Template
 
 
